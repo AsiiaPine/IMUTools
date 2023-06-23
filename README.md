@@ -8,16 +8,16 @@ The rest of the instrumental was written exclusively for IMU.
 Now let's describe in more detail what is there
 
 # Table of Contents
-1. [Code classes description](#Code-classes-description)
-1.1. [RedisPostman](#RedisPostman)
-1.2. [Madgwick](#Madgwick)
-1.3. [Accelerometer Calibration](#AccelerometerCalibration)
-2. [How to use](#Use-cases)
 
-   2.1 [Read data](#read-Data)
-   2.2 [Calibrate](#calibration)
-   2.2 [visualize](#visualization)
-   2.3 [Modify Data](#Modify-Data)
+1. [Code classes description](#Code-classes-description)
+    1.1. [RedisPostman](#RedisPostman)
+    1.2. [Madgwick](#Madgwick)
+    1.3. [Accelerometer Calibration](#AccelerometerCalibration)
+2. [How to use](#Use-cases)
+    2.1. [Read data](#read-Data)
+    2.2. [Calibrate](#calibration)
+    2.2. [visualize](#visualization)
+    2.3. [Modify Data](#Modify-Data)
 <!-- 3. [Requirements](#requirements) -->
 
 # Code classes description

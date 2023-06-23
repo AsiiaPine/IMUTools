@@ -127,15 +127,18 @@ def plot_imu_data(accels, gyros, imu, axs=None, fig=None, time=None):
     axs[0].plot(t_span, accels[:, 0], label="a_x", linestyle=linestyles[0])
     axs[0].plot(t_span, accels[:, 1], label="a_y", linestyle=linestyles[1])
     axs[0].plot(t_span, accels[:, 2], label="a_z", linestyle=linestyles[2])
-    axs[0].legend()
     axs[0].set_xlabel("t, s")
+    axs[0].set_ylabel("acceleration, rad/s^2")
+    axs[0].legend()
+
 
     axs[1].title.set_text(f"Gyroscopes {imu}")
     axs[1].plot(t_span, gyros[:, 0], label="g_x", linestyle=linestyles[0])
     axs[1].plot(t_span, gyros[:, 1], label="g_y", linestyle=linestyles[1])
     axs[1].plot(t_span, gyros[:, 2], label="g_z", linestyle=linestyles[2])
-    axs[1].legend()
     axs[1].set_xlabel("t, s")
+    axs[1].set_ylabel("velocity, rad/s")
+    axs[1].legend()
 
     fig.canvas.draw()
     fig.canvas.flush_events()

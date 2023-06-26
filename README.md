@@ -67,39 +67,37 @@ ___
 ## Accelerometer Calibration
 ### Calibration
 The class describes workflow of Acceleration calibration.
-It already knows everything, just call *update(xyz)*
+It calculates the coeffitients end offsets based on a known gravity vectos, then saves and updates all coeffitients to calib_data.json file.
+To calibrate accelerometer, make new instance of class ClaibrationAcc and just call *update(xyz)*. It will print in the terminal how to position the IMU.
 
 ___
 # Use Cases:
 
 ## Read data:
     ### Start redis db:
-    ```shell
+    
     sudo systemctl start redis
     sudo python IMU_read_serial_to_redis_async.py
-    ``` 
+    \ 
 
 
 ## Calibration:
-    ```shell
-    sudo python calibration_accel.py
-    ```
 
+    sudo python calibration_accel.py
+    \
     All data will be saved in file with name, saved in ***config.py*** as ***calib_data_filename***.
 
 ## Visualization:
-    ```shell
     python visualise.py
-    ```
+    \
 
     Choose the option you need. Be aware: You have to start processes which modify the raw data to e.g. plot calibrated data.
 
 ## Modify Data:
     To apply calibration to raw data, use:
 
-    ```shell
     sudo python recalculate_data.py
-    ```
+    \
 
     To transform data from euler to quaternions, use the script, which will post data into new stream. You still can access raw values.
     ```shell

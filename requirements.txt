@@ -1,0 +1,12 @@
+# Storage service
+redis==4.5.5
+
+# Serial reading
+pyserial==3.5
+
+# Calculation
+numpy==1.25.0
+scipy==1.10.1
+
+# Visualization
+matplotlib==3.7.1

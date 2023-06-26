@@ -1,3 +1,4 @@
+from typing import Any
 import numpy as np
 
 from Madgwick.quaternion_calculation import *
@@ -57,17 +58,17 @@ class MadgwickAHRS:
         assert accel_data is not None
         assert gyros_data is not None
 
-        accel_data = 9.8 * accel_data/np.linalg.norm(accel_data)
         # Gradient decent algorithm corrective step
         F: np.ndarray = np.array([2 * (q[1] * q[3] - q[0] * q[2]) - accel_data[0],
                                   2 * (q[0] * q[1] + q[2] * q[3]) -
                                   accel_data[1],
                                   2 * (0.5 - q[1] ** 2 - q[2] ** 2) - accel_data[2]])
 
-        J: np.ndarray = np.array([[
-            -2 * q[2], 2 * q[3], -2 * q[0], 2 * q[1]],
-            [2 * q[1], 2 * q[0], 2 * q[3], 2 * q[2]],
-            [0, -4 * q[1], -4 * q[2], 0]])
+        j1: list[float] = [-2 * q[2], 2 * q[3], -2 * q[0], 2 * q[1]]
+        j2: list[float] = [2 * q[1], 2 * q[0], 2 * q[3], 2 * q[2]]
+        j3 : list[float] = [0, -4 * q[1], -4 * q[2], 0]
+        
+        J: np.ndarray = np.array([j1, j2, j3])
 
         tolerance = 0.01
         step: np.ndarray = (J.T @ F).flatten()
@@ -98,23 +99,22 @@ class MadgwickAHRS:
         curr_time = time.time()
         self.acc = accel_data
         self.gyr = gyros_data
-        q: np.ndarray = self.quaternion
+        q: np.ndarray[float, Any] = self.quaternion
 
         # Normalise accelerometer measurement
         assert accel_data is not None
         assert gyros_data is not None
 
-        accel_data = 9.8 * accel_data/np.linalg.norm(accel_data)
         # Gradient decent algorithm corrective step
         F: np.ndarray = np.array([2 * (q[1] * q[3] - q[0] * q[2]) - accel_data[0],
                                   2 * (q[0] * q[1] + q[2] * q[3]) -
                                   accel_data[1],
                                   2 * (0.5 - q[1] ** 2 - q[2] ** 2) - accel_data[2]])
-
-        J: np.ndarray = np.array([[
-            -2 * q[2], 2 * q[3], -2 * q[0], 2 * q[1]],
-            [2 * q[1], 2 * q[0], 2 * q[3], 2 * q[2]],
-            [0, -4 * q[1], -4 * q[2], 0]])
+      
+        j1: list[float] = [-2 * q[2], 2 * q[3], -2 * q[0], 2 * q[1]]
+        j2: list[float] = [2 * q[1], 2 * q[0], 2 * q[3], 2 * q[2]]
+        j3 : list[float] = [0, -4 * q[1], -4 * q[2], 0]
+        J: np.ndarray = np.array([j1, j2, j3])
 
         tolerance = 0.01
         step: np.ndarray = (J.T @ F).flatten()

@@ -9,7 +9,7 @@ from RedisPostman.RedisWorker import AsyncRedisWorker
 import numpy as np
 
 
-async def read_serial_to_Madgwick_and_post_to_redis(out_channel_name: str, in_channel_name:str):
+async def transform_imu_data_to_quaternions(out_channel_name: str, in_channel_name:str):
     """
     Read data from IMU using serial port and post to redis stream.
     """
@@ -43,4 +43,4 @@ if __name__ == "__main__":
 
     madgwick_data_channel = madgwick_message_channel
 
-    asyncio.run(read_serial_to_Madgwick_and_post_to_redis(in_channel_name=imu_calibrated_message_channel, out_channel_name=madgwick_data_channel))
+    asyncio.run(transform_imu_data_to_quaternions(in_channel_name=imu_calibrated_message_channel, out_channel_name=madgwick_data_channel))

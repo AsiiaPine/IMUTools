@@ -28,6 +28,7 @@ sudo systemctl start redis
 sudo python IMU_read_serial_to_redis_async.py
 ```
 <a name="calibration"/>
+
 ## Calibrate
 ```bash
 sudo python calibration_accel.py

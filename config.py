@@ -45,5 +45,6 @@ gyro_offsets_str = "gyro offsets"
 import numpy as np
 
 # gyroscope parameters which has to be checked via experiments of from IMU documentation
-omega_e_imu_1 = np.sqrt(3)/4
-omega_e_imu_2 = np.sqrt(3)/4
+omega_e_imu_1 = [0.03, 0.06, -0.08]
+omega_e_imu_2 = [0.03, 0.06, -0.009]
+# omega_e_imu_2 = np.sqrt(3)/4

@@ -1,17 +1,18 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict
 from config import acc_coefficients_str, acc_offsets_str, gyro_coefficients_str, gyro_offsets_str, imu_1_name, imu_2_name
 import numpy as np
 import json
 from datetime import datetime
 import abc
+import traceback
 
 
 class Message(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def from_dict(cls, data: dict[str, str]) -> None:
+    def from_dict(cls, data: dict[str, Any]) -> None:
         pass
 
     @abc.abstractmethod
@@ -31,11 +32,11 @@ class IMUMessage(Message):
     imu_2: IMUData
 
     @classmethod
-    def from_dict(cls, data: dict[str, str]):
+    def from_dict(cls, data: dict[str, float]):
         """
         Deserialize message from JSON received from redis.
         """
-        
+
         imu_1 = IMUData(
             acc=np.array([
                 float(data["imu_1_accel x"]),
@@ -95,13 +96,14 @@ class MadgwickMessage(Message):
     imu_2: Quaternion
 
     @classmethod
-    def from_dict(cls, data: dict[str, str]):
+    def from_dict(cls, data: dict[str, Any]):
+
         imu_1 = Quaternion(np.array([float(i)
                            for i in data[imu_1_name]]))
         imu_2 = Quaternion(np.array([float(i)
                            for i in data[imu_2_name]]))
         return cls(imu_1=imu_1, imu_2=imu_2)
-    
+
     def to_dict(self) -> dict:
         raise Exception("Not implemented")
 
@@ -113,7 +115,7 @@ class IMUCalibrationData:
 
 
 @dataclass
-class IMUCoeffitients:
+class IMUCoefficients:
     """
     A class for loading IMU calibration coefficients from a file.
 
@@ -141,7 +143,7 @@ class IMUCoeffitients:
     imu_2_gyr: IMUCalibrationData
 
     @classmethod
-    def acc_from_file(cls, coeff_dict_filename: str) -> "IMUCoeffitients":
+    def acc_from_file(cls, coeff_dict_filename: str) -> "IMUCoefficients":
         """
         Load calibration coefficients from a file and return an instance of the class.
 
@@ -182,35 +184,62 @@ class IMUCoeffitients:
         return cls(imu_1_acc=imu_1_acc, imu_2_acc=imu_2_acc, imu_1_gyr=imu_1_gyr, imu_2_gyr=imu_2_gyr)
 
 
-def dumpclean(obj) -> str:
-    s: str = ""
+def dump_clean(obj, s="") -> str:
     if isinstance(obj, dict):
         for k, v in obj.items():
             if hasattr(v, '__iter__'):
-                s += k
-                dumpclean(v)
+                s+= '\n'+ k + ':\n'
+                s = dump_clean(v, s)
             else:
-                s += '%s : %s' % (k, v)
+                s+= '%s : %s' % (k, v) + '\n'
     elif isinstance(obj, list):
         for v in obj:
             if hasattr(v, '__iter__'):
-                dumpclean(v)
+                s = dump_clean(v, s)
             else:
-                s += v
+                s+= v + '\n'
     else:
-        s += obj
+        s+= obj + '\n'
     return s
 
 
 @dataclass
-class LoggMessage(Message):
+class LogMessage(Message):
     date: datetime
     process_name: str
     status: dict[str, Any]
 
+    date_format = '%m/%d/%Y\t%H:%M:%S'
+
+    @staticmethod
+    def exception_to_dict(exception: Exception) -> dict[str, Any]:
+        exception_dict = {
+            'type': type(exception).__name__,
+            'message': str(exception),
+            'args': str(exception.args),
+            'traceback': traceback.format_exc()
+        }
+        return exception_dict
+
     @classmethod
-    def create_log(cls, process_name: str, status: dict[str, Any]):
-        return cls(date=datetime.now(), process_name=process_name, status=status)
+    def from_dict(cls, data: dict[str, str | dict]):
+        assert isinstance(data["process"], str)
+        assert isinstance(data["date"], str)
+        assert isinstance(data["status"], dict)
+
+        process_name = data["process"]
+        date_str_de_DE: str = data["date"]
+
+        date: datetime = datetime.strptime(date_str_de_DE, cls.date_format)
+        status: dict = data["status"]
+        return cls(date=date, process_name=process_name, status=status)
+
+    def to_dict(self) -> dict:
+        data: dict[str, Any] = {}
+        data["date"] = datetime.strftime(self.date, self.date_format)
+        data["process"] = self.process_name
+        data["status"] = self.status
+        return data
 
     def __str__(self) -> str:
-        return f'{self.date}\t{self.process_name}\t{dumpclean(self.status)}'
+        return f'{self.date}\t{self.process_name}' + dump_clean(self.status)

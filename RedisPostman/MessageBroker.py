@@ -21,7 +21,7 @@ class MessageBroker(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def subscribe(self, channel: str) -> Iterator[str]:
+    def subscribe(self, channel: str, last_id: str) -> Iterator[str]:
         """Subscribes to the specified channel and
         returns generator which yields messages."""
         pass
@@ -47,7 +47,7 @@ class AMessageBroker(abc.ABC):
     
     
     @abc.abstractmethod
-    async def subscribe(self, channel: str) -> AsyncIterator[tuple[str, str]]:
+    async def subscribe(self, channel: str, last_id: str) -> AsyncIterator[tuple[str, str]]:
         """
         Asynchronously subscribes to the specified channel and
         returns async generator which yields messages.

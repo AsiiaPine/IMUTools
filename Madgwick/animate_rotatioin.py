@@ -1,7 +1,7 @@
 from scipy.special import logsumexp #type:ignore
 import matplotlib.pyplot as plt #type:ignore
 import numpy as np
-from Madgwick.visualize import visualize_rotation
+from Madgwick.visualize_quaternion import visualize_rotation
 import math
 
 

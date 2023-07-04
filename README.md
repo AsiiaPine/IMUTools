@@ -8,101 +8,60 @@ The rest of the instrumental was written exclusively for IMU.
 Now let's describe in more detail what is there
 
 # Table of Contents
-
-1. [Code classes description](#Code-classes-description)
-    1.1. [RedisPostman](#RedisPostman)
-    1.2. [Madgwick](#Madgwick)
-    1.3. [Accelerometer Calibration](#AccelerometerCalibration)
-2. [How to use](#Use-cases)
-    2.1. [Read data](#read-Data)
-    2.2. [Calibrate](#calibration)
-    2.2. [visualize](#visualization)
-    2.3. [Modify Data](#Modify-Data)
-<!-- 3. [Requirements](#requirements) -->
-
-# Code classes description
-## RedisPostman:
-
-### RedisWorker
-Class which read streams from the redis database.
-```
-# for async
-worker = AsyncRedisWorker()
-
-async for message in worker.subscribe(block=1, count=100000, dataClass=dataClass, channel=channel):
-    print(message)
-    # do smth with data
-    ...
-
-    # post new data
-    await worker.broker.publish(channel=out_channel_name, message=json.dumps(message.to_dict()))
-
-```
-```
-# for Sync
-worker = RedisWorker()
-
-for message in worker.subscribe(block=1, count=100000, dataClass=dataClass, channel=channel):
-    print(message)
-    # do smth with data
-    ...
-
-    # post new data
-    worker.broker.publish(channel=out_channel_name, message=json.dumps(message.to_dict()))
-```
-dataClass - any class, described in models.py, which is inherited from Message class.
-
-
-### MessageBroker
-The one, who really publish and subscribes to the data from redis.
+[Read data](#read-Data)\
+[Calibrate](#calibration)\
+[Visualization](#visualization)\
+[Modify Data](#Modify-Data)\
+[Debugging and Logger](#Debugging-and-Logging)
 ___
-## Madgwick
 
-### MadgwickFilter
-The one who is responsible for non reliable results in quaternion visualization.
-### Madgwick Plotter
-Works with ***matplotlib***
 
-___
-## Accelerometer Calibration
-### Calibration
-The class describes workflow of Acceleration calibration.
-It calculates the coeffitients end offsets based on a known gravity vectos, then saves and updates all coeffitients to calib_data.json file.
-To calibrate accelerometer, make new instance of class ClaibrationAcc and just call *update(xyz)*. It will print in the terminal how to position the IMU.
+<a name="read-Data"/>
 
-___
-# Use Cases:
-
-## Read data:
-    ### Start redis db:
+## Read data
+### Start redis db:    
+```zsh
+sudo systemctl start redis
+```
+### Read IMU data from Serial port
+```bash
+sudo python IMU_read_serial_to_redis_async.py
+```
+<a name="calibration"/>
+## Calibrate
+```bash
+sudo python calibration_accel.py
+```
     
-    sudo systemctl start redis
-    sudo python IMU_read_serial_to_redis_async.py
-    \ 
+All data will be saved in file with name, saved in ***config.py*** as ***calib_data_filename***.
 
 
-## Calibration:
+<a name="visualization"/>
 
-    sudo python calibration_accel.py
-    \
-    All data will be saved in file with name, saved in ***config.py*** as ***calib_data_filename***.
+## Visualization
+There is all possible configurations for IMU data visualization - includes methods for plotting 3D rotations and 2D IMU data (calibrated and raw data).
+```bash
+python visualize.py
+```    
 
-## Visualization:
-    python visualise.py
-    \
+Choose the option you need. Be aware: You have to start processes which modify the raw data to e.g. plot calibrated data.
 
-    Choose the option you need. Be aware: You have to start processes which modify the raw data to e.g. plot calibrated data.
+<a name="Modify-Data"/>
 
-## Modify Data:
-    To apply calibration to raw data, use:
+## Modify Data
+To apply calibration to raw data, use:
+```bash
+sudo python recalculate_data.py
+```   
 
-    sudo python recalculate_data.py
-    \
+To transform data from euler to quaternions, use the script, which will post data into a new stream. You still can access raw values.
+```shell
+sudo python madgwick_transformer.py 
+```
+<a name="Debugging-and-Logging"/>
 
-    To transform data from euler to quaternions, use the script, which will post data into new stream. You still can access raw values.
-    ```shell
-    sudo python madgwick_transformer.py 
-    ```
-
-
-
+## Debugging and Logging:
+Clear the terminal and Start to read logs messages from processes via ***read_logs.py***
+### How to use?
+Logger connects to Redis and stores Exceptions from all processes, which sends the data to related channel (the name log_message_channel defined in in config.py)
+Also, a Log message has its own structure, described in **models.py** - LogMessage.

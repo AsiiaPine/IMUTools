@@ -1,12 +1,10 @@
 import asyncio
+import datetime
 from Madgwick.MadgwickFilter import MadgwickAHRS
-from RedisPostman.models import IMUCoeffitients, IMUCalibrationData, IMUCalibrationData, IMUMessage
+from RedisPostman.models import IMUMessage, LogMessage
 import json
-from redis import asyncio as aioredis
-from RedisPostman.MessageBroker import ARedisMessageBroker
-from config import madgwick_message_channel,  imu_1_name, imu_2_name, imu_calibrated_message_channel, omega_e_imu_1, omega_e_imu_2
+from config import madgwick_message_channel,  imu_1_name, imu_2_name, imu_calibrated_message_channel, omega_e_imu_1, omega_e_imu_2, log_message_channel
 from RedisPostman.RedisWorker import AsyncRedisWorker
-import numpy as np
 
 
 async def transform_imu_data_to_quaternions(out_channel_name: str, in_channel_name:str):
@@ -37,7 +35,10 @@ async def transform_imu_data_to_quaternions(out_channel_name: str, in_channel_na
         except KeyboardInterrupt:
             await worker.broker.redis_client.delete(madgwick_message_channel)
             return
-        
+        except Exception as e:
+            error_message = LogMessage(date=datetime.datetime.now(), process_name="madgwick_transformer", status=LogMessage.exception_to_dict(e))
+            await worker.broker.publish(log_message_channel, json.dumps(error_message.to_dict()))
+
 
 if __name__ == "__main__":
 

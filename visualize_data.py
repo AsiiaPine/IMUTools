@@ -1,10 +1,13 @@
 import asyncio
+import datetime
+import json
 from typing import Callable
 from Madgwick.MadgwickPlotter import MadgwickRedisPlotter
-from RedisPostman.models import Message
+from RedisPostman.models import LogMessage, Message
 from RedisPostman.RedisWorker import AsyncRedisWorker
 import numpy as np
 from visualizer_options import options_names, options
+from config import log_message_channel
 
 async def visualize_imu(madgwick_plotter: MadgwickRedisPlotter, reader: Callable, channel: str, dataClass: type[Message]):
     """
@@ -14,8 +17,12 @@ async def visualize_imu(madgwick_plotter: MadgwickRedisPlotter, reader: Callable
 
     async for message in worker.subscribe(block=1, count=100000, dataClass=dataClass, channel=channel):
         if message is not None:
-            result: dict[str, np.ndarray] = reader(message)
-            madgwick_plotter.update_plot_from_redis(acc=result["acc"], gyr=result["gyr"], quaternion=result["quaternion"])
+            try:
+                result: dict[str, np.ndarray] = reader(message)
+                madgwick_plotter.update_plot_from_redis(acc=result["acc"], gyr=result["gyr"], quaternion=result["quaternion"])
+            except Exception as e:
+                error_message = LogMessage(date=datetime.datetime.now(), process_name="visualize", status=LogMessage.exception_to_dict(e))
+                await worker.broker.publish(log_message_channel, json.dumps(error_message.to_dict()))
 
 def print_dict(obj):
     s: str = ""

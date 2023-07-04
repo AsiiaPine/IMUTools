@@ -85,20 +85,11 @@ class MadgwickPlotter:
         self.theta = self.quaternion[0]
         _, self.theta, _, _, _,  _, _ = draw_rotation(
             quaternion=self.quaternion, t=self.curr_time, fig=self.fig, ax=self.ax, theta=self.theta)
-        # plt.pause(0.5)
+
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
         plt.pause(0.0001)
 
-    # async def __aplot_3d_view__(self):
-    #     self.ax.clear()
-    #     self.theta = self.madgwick.quaternion[0]
-    #     _, self.theta, _, _, _,  _, _ = draw_rotation(
-    #         quaternion=self.quaternion, t=self.curr_time, fig=self.fig, ax=self.ax, theta=self.theta)
-    #     # plt.pause(0.5)
-    #     self.fig.canvas.draw()
-    #     self.fig.canvas.flush_events()
-    #     plt.pause(0.0001)
 
     def __plot_2d_data__(self):
         for ax in self.imu_axs:
@@ -123,14 +114,6 @@ class MadgwickPlotter:
         else:
             self.__plot_2d_data__()
 
-    # async def __async_update_plot__(self):
-    #     self.curr_time = time.time() - self.__start_time__
-    #     self.time_window.append(self.curr_time)
-    #     if self.to_draw_3d:
-    #         self.__plot_3d_view__()
-    #     else:
-    #         self.__plot_2d_data__()
-
 
 class MadgwickPlotterFromAHRS(MadgwickPlotter):
     def __init__(self, madgwick: MadgwickAHRS, t_start: float = time.time(), to_draw_3d: bool = False, to_draw_imu_data: bool = False, window_size: int = 20, imu_n: str = "0") -> None:
@@ -148,10 +131,6 @@ class MadgwickPlotterFromAHRS(MadgwickPlotter):
         self.get_Madgwick_data()
         return super().__update_plot__()
 
-    # def __async_update_plot__(self):
-    #     self.get_Madgwick_data()
-    #     return super().__async_update_plot__()
-
 
 class MadgwickRedisPlotter(MadgwickPlotter):
     def __init__(self, t_start: float = time.time(), to_draw_3d: bool = False, to_draw_imu_data: bool = False, window_size: int = 20, imu_n: str = "0") -> None:
@@ -165,12 +144,3 @@ class MadgwickRedisPlotter(MadgwickPlotter):
             self.quaternion = quaternion
 
         return super().__update_plot__()
-
-    # def async_update_plot_from_redis(self, acc: np.ndarray = np.array([0, 0, 0]), gyr: np.ndarray = np.array([0, 0, 0]), quaternion: np.ndarray = np.array([1, 0, 0, 0])):
-    #     if self.to_draw_imu_data:
-    #         self.acc = acc
-    #         self.gyr = gyr
-    #     else:
-    #         self.quaternion = quaternion
-
-    #     return super().__async_update_plot__()

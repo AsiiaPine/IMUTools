@@ -7,7 +7,7 @@ from RedisPostman.RedisWorker import RedisWorker
 import json
 from AccelerometerCalibration.Calibration import CalibrationAcc
 from config import acc_coefficients_str, acc_offsets_str, gyro_coefficients_str, gyro_offsets_str, imu_raw_message_channel, calib_data_filename
-from RedisPostman.models import IMUCoeffitients, IMUMessage
+from RedisPostman.models import IMUCoefficients, IMUMessage
 
 def main()->None:
     worker = RedisWorker()

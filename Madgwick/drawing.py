@@ -108,7 +108,7 @@ def draw_rotation(
     return rm, theta, ax, fig, quiverx, quivery, quiverz
 
 
-def plot_imu_data(accels, gyros, imu, axs=None, fig=None, time=None):
+def plot_imu_data(accels, gyros, imu, axs=None, fig=None, time=None, magnets = None):
     N = max(accels.shape)
     
     if time is None:
@@ -120,7 +120,11 @@ def plot_imu_data(accels, gyros, imu, axs=None, fig=None, time=None):
 
     t_span = time
     if axs is None or fig is None:
-        fig, axs = plt.subplots(ncols=1, nrows=2, figsize=(18 * 2, 6 * 2))
+        if magnets is not None:
+            ncols, nrows = 1, 3
+        else:
+            ncols, nrows = 1, 2
+        fig, axs = plt.subplots(ncols=ncols, nrows=nrows, figsize=(18 * 2, 6 * nrows))
     linestyles: list[str] = ['solid', 'dashed', 'dotted', 'dashdot']
 
     axs[0].title.set_text(f"Acceleration {imu}")
@@ -139,6 +143,16 @@ def plot_imu_data(accels, gyros, imu, axs=None, fig=None, time=None):
     axs[1].set_xlabel("t, s")
     axs[1].set_ylabel("velocity, rad/s")
     axs[1].legend()
+
+    if magnets is not None:
+        axs[2].title.set_text(f"Magnetometer {imu}")
+        axs[2].plot(t_span, magnets[:, 0], label="m_x", linestyle=linestyles[0])
+        axs[2].plot(t_span, magnets[:, 1], label="m_y", linestyle=linestyles[1])
+        axs[2].plot(t_span, magnets[:, 2], label="m_z", linestyle=linestyles[2])
+        axs[2].set_xlabel("t, s")
+        axs[2].set_ylabel("magnetic flux density, e-6 T")
+        axs[2].legend()
+
 
     fig.canvas.draw()
     fig.canvas.flush_events()

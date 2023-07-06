@@ -25,6 +25,9 @@ class IMUData:
     acc: np.ndarray
     gyr: np.ndarray
 
+@dataclass
+class IMU9250Data(IMUData):
+    mag: np.ndarray
 
 @dataclass
 class IMUMessage(Message):
@@ -39,26 +42,26 @@ class IMUMessage(Message):
 
         imu_1 = IMUData(
             acc=np.array([
-                float(data["imu_1_accel x"]),
-                float(data["imu_1_accel y"]),
-                float(data["imu_1_accel z"]),
+                float(data["imu_1_acc x"]),
+                float(data["imu_1_acc y"]),
+                float(data["imu_1_acc z"]),
             ]),
             gyr=np.array([
-                float(data["imu_1_gyro x"]),
-                float(data["imu_1_gyro y"]),
-                float(data["imu_1_gyro z"]),
+                float(data["imu_1_gyr x"]),
+                float(data["imu_1_gyr y"]),
+                float(data["imu_1_gyr z"]),
             ]),
         )
         imu_2 = IMUData(
             acc=np.array([
-                float(data["imu_2_accel x"]),
-                float(data["imu_2_accel y"]),
-                float(data["imu_2_accel z"]),
+                float(data["imu_2_acc x"]),
+                float(data["imu_2_acc y"]),
+                float(data["imu_2_acc z"]),
             ]),
             gyr=np.array([
-                float(data["imu_2_gyro x"]),
-                float(data["imu_2_gyro y"]),
-                float(data["imu_2_gyro z"]),
+                float(data["imu_2_gyr x"]),
+                float(data["imu_2_gyr y"]),
+                float(data["imu_2_gyr z"]),
             ]),
         )
         return cls(imu_1=imu_1, imu_2=imu_2)
@@ -66,22 +69,99 @@ class IMUMessage(Message):
     def to_dict(self):
         data = {}
 
-        data["imu_1_accel x"] = self.imu_1.acc[0]
-        data["imu_1_accel y"] = self.imu_1.acc[1]
-        data["imu_1_accel z"] = self.imu_1.acc[2]
+        data["imu_1_acc x"] = self.imu_1.acc[0]
+        data["imu_1_acc y"] = self.imu_1.acc[1]
+        data["imu_1_acc z"] = self.imu_1.acc[2]
 
-        data["imu_2_accel x"] = self.imu_2.acc[0]
-        data["imu_2_accel y"] = self.imu_2.acc[1]
-        data["imu_2_accel z"] = self.imu_2.acc[2]
+        data["imu_2_acc x"] = self.imu_2.acc[0]
+        data["imu_2_acc y"] = self.imu_2.acc[1]
+        data["imu_2_acc z"] = self.imu_2.acc[2]
 
-        data["imu_1_gyro x"] = self.imu_1.gyr[0]
-        data["imu_1_gyro y"] = self.imu_1.gyr[1]
-        data["imu_1_gyro z"] = self.imu_1.gyr[2]
+        data["imu_1_gyr x"] = self.imu_1.gyr[0]
+        data["imu_1_gyr y"] = self.imu_1.gyr[1]
+        data["imu_1_gyr z"] = self.imu_1.gyr[2]
 
-        data["imu_2_gyro x"] = self.imu_2.gyr[0]
-        data["imu_2_gyro y"] = self.imu_2.gyr[1]
-        data["imu_2_gyro z"] = self.imu_2.gyr[2]
+        data["imu_2_gyr x"] = self.imu_2.gyr[0]
+        data["imu_2_gyr y"] = self.imu_2.gyr[1]
+        data["imu_2_gyr z"] = self.imu_2.gyr[2]
 
+        return data
+
+
+@dataclass
+class IMU9250Message(Message):
+    imu_1 : IMU9250Data
+    imu_2 : IMU9250Data
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]):
+        """
+        Deserialize message from JSON received from redis.
+        """
+        imu_1 = IMU9250Data(
+            acc=np.array([
+                float(data["imu_1_acc x"]),
+                float(data["imu_1_acc y"]),
+                float(data["imu_1_acc z"]),
+            ]),
+            gyr=np.array([
+                float(data["imu_1_gyr x"]),
+                float(data["imu_1_gyr y"]),
+                float(data["imu_1_gyr z"]),
+            ]),
+            mag=np.array([
+                float(data["imu_1_mag_x"]),
+                float(data["imu_1_mag_y"]),
+                float(data["imu_1_mag_z"])
+            ]),
+        )
+
+        imu_2 = IMU9250Data(
+            acc=np.array([
+                float(data["imu_2_acc x"]),
+                float(data["imu_2_acc y"]),
+                float(data["imu_2_acc z"]),
+            ]),
+            gyr=np.array([
+                float(data["imu_2_gyr x"]),
+                float(data["imu_2_gyr y"]),
+                float(data["imu_2_gyr z"]),
+            ]),
+            mag=np.array([
+                float(data["imu_2_mag_x"]),
+                float(data["imu_2_mag_y"]),
+                float(data["imu_2_mag_z"])
+            ]),
+        )
+        return cls(imu_1=imu_1, imu_2=imu_2)
+
+    def to_dict(self):
+        data = {}
+
+        data["imu_1_acc x"] = self.imu_1.acc[0]
+        data["imu_1_acc y"] = self.imu_1.acc[1]
+        data["imu_1_acc z"] = self.imu_1.acc[2]
+
+        data["imu_2_acc x"] = self.imu_2.acc[0]
+        data["imu_2_acc y"] = self.imu_2.acc[1]
+        data["imu_2_acc z"] = self.imu_2.acc[2]
+
+        data["imu_1_gyr x"] = self.imu_1.gyr[0]
+        data["imu_1_gyr y"] = self.imu_1.gyr[1]
+        data["imu_1_gyr z"] = self.imu_1.gyr[2]
+
+        data["imu_2_gyr x"] = self.imu_2.gyr[0]
+        data["imu_2_gyr y"] = self.imu_2.gyr[1]
+        data["imu_2_gyr z"] = self.imu_2.gyr[2]
+
+        data["imu_1_mag x"] = self.imu_1.mag[0]
+        data["imu_1_mag x"] = self.imu_1.mag[1]
+        data["imu_1_mag x"] = self.imu_1.mag[2]
+
+        data["imu_2_mag x"] = self.imu_2.mag[0]
+        data["imu_2_mag x"] = self.imu_2.mag[1]
+        data["imu_2_mag x"] = self.imu_2.mag[2]
+        
         return data
 
 
@@ -143,7 +223,7 @@ class IMUCoefficients:
     imu_2_gyr: IMUCalibrationData
 
     @classmethod
-    def acc_from_file(cls, coeff_dict_filename: str) -> "IMUCoefficients":
+    def read_from_file(cls, coeff_dict_filename: str) -> "IMUCoefficients":
         """
         Load calibration coefficients from a file and return an instance of the class.
 
@@ -172,7 +252,7 @@ class IMUCoefficients:
                 calib_data[imu_n][gyro_coefficients_str] = [1, 1, 1]
             if gyro_offsets_str not in calib_data[imu_n].keys():
                 calib_data[imu_n][gyro_offsets_str] = [0, 0, 0]
-
+            print("gyr offsets:", calib_data[imu_n][gyro_offsets_str])
         imu_1_acc = IMUCalibrationData(offset=np.array(calib_data["imu_1"][acc_offsets_str]),
                                        coeffs=np.array(calib_data["imu_1"][acc_coefficients_str]))
         imu_2_acc = IMUCalibrationData(offset=np.array(calib_data["imu_2"][acc_offsets_str]),

@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 from Madgwick.MadgwickFilter import MadgwickAHRS
-from RedisPostman.models import IMUMessage, LogMessage
+from RedisPostman.models import IMUMessage, LogMessage, IMU9250Message
 import json
 from config import madgwick_message_channel,  imu_1_name, imu_2_name, imu_calibrated_message_channel, omega_e_imu_1, omega_e_imu_2, log_message_channel
 from RedisPostman.RedisWorker import AsyncRedisWorker
@@ -15,16 +15,15 @@ async def transform_imu_data_to_quaternions(out_channel_name: str, in_channel_na
     mf2: MadgwickAHRS = MadgwickAHRS(omega_e=omega_e_imu_2)
 
     worker = AsyncRedisWorker()
-
-    async for message in worker.subscribe(count=10000000, block=1, dataClass=IMUMessage, channel=in_channel_name):
+    async for message in worker.subscribe(count=10000000, block=1, dataClass=IMU9250Message, channel=in_channel_name):
         if message is None:
             continue
         try:
-            await mf1.async_update_IMU(gyros_data=message.imu_1.gyr,
-                                accel_data=message.imu_1.acc)
+            mf1.update_IMU(gyros_data=message.imu_1.gyr,
+                                accel_data=message.imu_1.acc, magn_data=message.imu_1.mag)
 
-            await mf2.async_update_IMU(gyros_data=message.imu_2.gyr,
-                                accel_data=message.imu_2.acc)
+            mf2.update_IMU(gyros_data=message.imu_2.gyr,
+                                accel_data=message.imu_2.acc, magn_data=message.imu_2.mag)
 
 
             madgwick_data = {imu_1_name: mf1.quaternion.tolist(), imu_2_name: mf2.quaternion.tolist()}

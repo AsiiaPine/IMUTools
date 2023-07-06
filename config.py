@@ -1,25 +1,55 @@
-
 # headers represent the order of IMU data in the Serial
 headers = [
 
-    "imu_1_gyro z",
-    "imu_1_gyro y",
-    "imu_1_gyro x",
+    "imu_1_gyr z",
+    "imu_1_gyr y",
+    "imu_1_gyr x",
 
-    "imu_1_accel z",
-    "imu_1_accel y",
-    "imu_1_accel x",
+    "imu_1_acc z",
+    "imu_1_acc y",
+    "imu_1_acc x",
 
-    "imu_2_gyro z",
-    "imu_2_gyro y",
-    "imu_2_gyro x",
+    "imu_2_gyr z",
+    "imu_2_gyr y",
+    "imu_2_gyr x",
 
-    "imu_2_accel z",
-    "imu_2_accel y",
-    "imu_2_accel x",
+    "imu_2_acc z",
+    "imu_2_acc y",
+    "imu_2_acc x",
 ]
 
-# redis data chennels names
+mpu9250_headers=[
+
+    "imu_1_mag_z",
+    "imu_1_mag_y",
+    "imu_1_mag_x",
+
+    "imu_1_gyr z",
+    "imu_1_gyr y",
+    "imu_1_gyr x",
+
+    "imu_1_tem x",
+
+    "imu_1_acc z",
+    "imu_1_acc y",
+    "imu_1_acc x",
+
+    "imu_2_mag_z",
+    "imu_2_mag_y",
+    "imu_2_mag_x",
+
+    "imu_2_gyr z",
+    "imu_2_gyr y",
+    "imu_2_gyr x",
+
+    "imu_2_tem x",
+    
+    "imu_2_acc z",
+    "imu_2_acc y",
+    "imu_2_acc x",
+]
+
+# redis data channels names
 imu_raw_message_channel = "imu_raw_data"
 imu_calibrated_message_channel = "imu_calibrated_data"
 madgwick_message_channel = "madgwick_data"
@@ -32,10 +62,10 @@ log_message_channel = "logger"
 imu_1_name = "imu_1"
 imu_2_name = "imu_2"
 
-# name of file where all calibration coeffitients are stored
+# name of file where all calibration coefficients are stored
 calib_data_filename = "calib_data.json"
 
-# names of calibration coeffitients in the file with calib_data_filename
+# names of calibration coefficients in the file with calib_data_filename
 acc_offsets_str = "acc offsets"
 acc_coefficients_str = "acc coeffs"
 
@@ -45,6 +75,8 @@ gyro_offsets_str = "gyro offsets"
 import numpy as np
 
 # gyroscope parameters which has to be checked via experiments of from IMU documentation
-omega_e_imu_1 = [0.03, 0.06, -0.08]
-omega_e_imu_2 = [0.03, 0.06, -0.009]
-# omega_e_imu_2 = np.sqrt(3)/4
+# omega_e_imu_1 = [0.001, 0.006, 0.015]
+# omega_e_imu_2 = [0.001, 0.01, 0.0075]
+
+omega_e_imu_1 = [0.1, 0.1, 0.1]
+omega_e_imu_2 = [0.01, 0.01, 0.01]

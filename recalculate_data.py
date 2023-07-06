@@ -39,20 +39,17 @@ async def apply_coeffs_to_imu_message(coefficients: IMUCoefficients, in_channel_
     async for message in worker.subscribe(count=10000000, block=1, dataClass=in_dataClass, channel=in_channel_name):
         if message is not None:
             try:
-                # print("Im'here")
                 message.imu_1.gyr = (message.imu_1.gyr -
                                      imu_1_gyr_offset) * imu_1_gyr_coeffs
                 message.imu_1.acc = (message.imu_1.acc -
                                      imu_1_acc_offset) * imu_1_acc_coeffs
-                # message.imu_1.acc = message.imu_1.acc / \
-                #     np.linalg.norm(message.imu_1.acc)
+                message.imu_1.acc = message.imu_1.acc/np.linalg.norm(message.imu_1.acc)
 
                 message.imu_2.gyr = (message.imu_2.gyr -
                                      imu_2_gyr_offset) * imu_2_gyr_coeffs
                 message.imu_2.acc = (message.imu_2.acc -
                                      imu_2_acc_offset) * imu_2_acc_coeffs
-                # message.imu_2.acc = message.imu_2.acc / \
-                #     np.linalg.norm(message.imu_1.acc)
+                message.imu_2.acc = message.imu_2.acc/np.linalg.norm(message.imu_2.acc)
 
                 await worker.broker.publish(channel=out_channel_name, message=json.dumps(message.to_dict()))
 
@@ -65,12 +62,10 @@ async def apply_coeffs_to_imu_message(coefficients: IMUCoefficients, in_channel_
 
 
 if __name__ == "__main__":
-    # redis_ = aioredis.from_url("redis://localhost:6379/0")
-    # broker = ARedisMessageBroker(redis)
 
     filename = calib_data_filename
 
-    coeff = IMUCoefficients.acc_from_file(filename)
+    coeff = IMUCoefficients.read_from_file(filename)
 
     asyncio.run(apply_coeffs_to_imu_message(coefficients=coeff, in_channel_name=imu_raw_message_channel,
                 out_channel_name=imu_calibrated_message_channel, in_dataClass=IMUMessage))

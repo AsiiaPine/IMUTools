@@ -38,6 +38,7 @@ class MadgwickAHRS:
         self.prev_quaternion: np.ndarray = quaternion
         if b is None:
             b = np.array([131, 94, 157])
+            # b = np.array([1, 1, 1])
         if beta is np.zeros(4):
             beta = np.sqrt(3)/2 * omega_e
 
@@ -53,7 +54,7 @@ class MadgwickAHRS:
         q_x: float
         q_y: float
         q_z: float
-        q_w, q_x, q_y, q_z = self.quaternion[0]
+        q_w, q_x, q_y, q_z = self.quaternion
         F: np.ndarray = np.array([2 * (q_x * q_z - q_w * q_y) - a[0],
                                   2 * (q_w * q_x + q_y * q_z) -
                                   a[1],
@@ -65,7 +66,7 @@ class MadgwickAHRS:
         q_x: float
         q_y: float
         q_z: float
-        q_w, q_x, q_y, q_z = self.quaternion[0]
+        q_w, q_x, q_y, q_z = self.quaternion
         j1: list[float] = [-2 * q_y, 2 * q_z, -2 * q_w, 2 * q_x]
         j2: list[float] = [2 * q_x, 2 * q_w, 2 * q_z, 2 * q_y]
         j3: list[float] = [0, -4 * q_x, -4 * q_y, 0]
@@ -78,11 +79,11 @@ class MadgwickAHRS:
         q_x: float
         q_y: float
         q_z: float
-        q_w, q_x, q_y, q_z = self.quaternion[0]
+        q_w, q_x, q_y, q_z = self.quaternion
         f_b = np.array(
-            [2*b[0](0.5 - q_y**2 - q_z**2) + 2*b[2]*(q_x*q_z - q_w*q_y) - m[0],
-             2*b[0](q_y*q_x - q_w*q_z) + 2*b[2]*(q_w*q_x + q_y*q_z) - m[1],
-             2*b[0]*(q_w*q_y + q_x*q_z) + 2*b[2](0.5 - q_x**2 - q_y**2) - m[2]])
+            [2*b[0]*(0.5 - q_y**2 - q_z**2) + 2*b[2]*(q_x*q_z - q_w*q_y) - m[0],
+             2*b[0]*(q_y*q_x - q_w*q_z) + 2*b[2]*(q_w*q_x + q_y*q_z) - m[1],
+             2*b[0]*(q_w*q_y + q_x*q_z) + 2*b[2]*(0.5 - q_x**2 - q_y**2) - m[2]])
         return f_b
 
     def calc_jacobian_b(self):
@@ -91,7 +92,7 @@ class MadgwickAHRS:
         q_x: float
         q_y: float
         q_z: float
-        q_w, q_x, q_y, q_z = self.quaternion[0]
+        q_w, q_x, q_y, q_z = self.quaternion
 
         j_1 = np.array(
             [-2*b[2] * q_y,       2*b[2]*q_z,               -4*b[0]*q_y - 2*b[2]*q_w,     -4*b[0]*q_z + 2 * b[2] * q_x])
@@ -102,12 +103,17 @@ class MadgwickAHRS:
         return np.array([j_1, j_2, j_3])
 
     def calc_step(self, F_g: np.ndarray, J_g: np.ndarray, F_b: np.ndarray | None = None, J_b: np.ndarray | None = None) -> np.ndarray:
-        if F_b or J_b is None:
+        if not isinstance(F_b, np.ndarray) and not isinstance(J_b, np.ndarray):
             return -1 * (J_g.T @ F_g).flatten()
         else:
-            F_g_b = np.array([F_g, F_b])
-            J_g_b = np.array([J_g.T, J_b.T])
-            return -1*(J_g_b.T @ F_g_b).flatten()
+            assert isinstance(F_b, np.ndarray)
+            assert isinstance(J_b, np.ndarray)
+            F_g_b = np.hstack((F_g, F_b)).flatten()
+            J_g_b = np.hstack((J_g.T, J_b.T))
+
+            result = -1*(J_g_b @ F_g_b)
+            # result = -1*(J_g_b.T @ F_g_b)
+            return result
 
     def update_IMU(self, gyros_data: np.ndarray, accel_data: np.ndarray, magn_data: np.ndarray | None = None):
         """ updates the quaternion using gyroscope and accelerometer data. 

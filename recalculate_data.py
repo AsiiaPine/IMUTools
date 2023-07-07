@@ -3,18 +3,19 @@ import datetime
 import traceback
 
 import numpy as np
-from RedisPostman.models import IMUCoefficients,  IMUMessage, LogMessage, Message
+from RedisPostman.models import IMUCoefficients,  IMUMessage, LogMessage, Message, IMU9250Message
 import json
 from config import calib_data_filename, imu_raw_message_channel, imu_calibrated_message_channel, log_message_channel
 from RedisPostman.RedisWorker import AsyncRedisWorker
 
 
-async def to_filter(array: list[IMUMessage], message: IMUMessage):
-    assert isinstance(message, IMUMessage)
+async def to_filter(array: list[IMUMessage], message: IMU9250Message):
+    assert isinstance(message, IMU9250Message)
+
     array.append(message)
 
     if len(array) == 20:
-        assert isinstance(array[0], IMUMessage)
+        assert isinstance(array[0], IMU9250Message)
         message.imu_1.acc = np.mean([mes.imu_1.acc for mes in array], axis=0)
         message.imu_2.acc = np.mean([mes.imu_2.acc for mes in array], axis=0)
         message.imu_1.gyr = np.mean([mes.imu_1.gyr for mes in array], axis=0)
@@ -68,4 +69,4 @@ if __name__ == "__main__":
     coeff = IMUCoefficients.read_from_file(filename)
 
     asyncio.run(apply_coeffs_to_imu_message(coefficients=coeff, in_channel_name=imu_raw_message_channel,
-                out_channel_name=imu_calibrated_message_channel, in_dataClass=IMUMessage))
+                out_channel_name=imu_calibrated_message_channel, in_dataClass=IMU9250Message))

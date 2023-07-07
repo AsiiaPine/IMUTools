@@ -57,13 +57,19 @@ class MadgwickPlotter:
         self.time_window = [0.0, 0.0]
         self.acc = np.array([0, 0, 0])
         self.gyr = np.array([0, 0, 0])
-        self.mag = np.array([0, 0, 0])
+        self.mag = None
         self.__window_size__ = window_size
         self.__start_time__ = t_start
         self.__prev_time__ = t_start
         self.quaternion = np.array([1,0,0,0])
         self.to_draw_3d = to_draw_3d
         self.to_draw_imu_data = to_draw_imu_data
+
+        if to_draw_magnetic:
+            self.mag = np.array([0, 0, 0])
+            self.__mag_array__= np.zeros((2, 3))
+
+        self.to_draw_magnetic = to_draw_magnetic
 
         if to_draw_3d and to_draw_imu_data:
             warnings.warn(
@@ -80,10 +86,8 @@ class MadgwickPlotter:
         if to_draw_imu_data:
             self.i = 0
             self.imu_n = imu_n
-            if to_draw_magnetic:
-                self.__mag_array__= np.zeros((2, 3))
             self.imu_axs, self.imu_fig = plot_imu_data(
-                np.zeros((3, 3)), np.zeros((3, 3)), imu=imu_n, time=np.zeros(3)*t_start, magnets=self.__mag_array__)
+                self.__acc_array__, self.__gyr_array__, imu=imu_n, time=np.zeros(2)*t_start, magnets=self.__mag_array__)
 
     def __plot_3d_view__(self):
         self.ax.clear()
@@ -102,12 +106,13 @@ class MadgwickPlotter:
             assert isinstance(ax, Axes)
         if self.i > self.__window_size__:
             self.time_window = self.time_window[1:]
-            if self.__mag_array__ is not None:
+            if self.to_draw_magnetic:
+                assert self.__mag_array__ is not None
                 self.__mag_array__ = self.__mag_array__[1:]
             self.__acc_array__ = self.__acc_array__[1:]
             self.__gyr_array__ = self.__gyr_array__[1:]
-
-        if self.__mag_array__ is not None:
+        if self.to_draw_magnetic:
+            assert self.__mag_array__ is not None
             self.__mag_array__ = np.vstack((self.__mag_array__, self.mag))
         self.__acc_array__ = np.vstack((self.__acc_array__, self.acc))
         self.__gyr_array__ = np.vstack((self.__gyr_array__, self.gyr))
@@ -144,7 +149,7 @@ class MadgwickPlotterFromAHRS(MadgwickPlotter):
 
 class MadgwickRedisPlotter(MadgwickPlotter):
     def __init__(self, t_start: float = time.time(), to_draw_3d: bool = False, to_draw_imu_data: bool = False, to_draw_magnetic=False, window_size: int = 20, imu_n: str = "0") -> None:
-        super().__init__(t_start, to_draw_3d, to_draw_imu_data, to_draw_magnetic, window_size, imu_n)
+        super().__init__(t_start=t_start, to_draw_3d=to_draw_3d, to_draw_imu_data=to_draw_imu_data, to_draw_magnetic=to_draw_magnetic, window_size=window_size, imu_n=imu_n)
 
     def update_plot_from_redis(self, acc: np.ndarray = np.array([0, 0, 0]), gyr: np.ndarray = np.array([0, 0, 0]), mag:np.ndarray|None = None, quaternion: np.ndarray = np.array([1, 0, 0, 0])):
         if self.to_draw_imu_data:

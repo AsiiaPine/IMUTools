@@ -89,7 +89,7 @@ class IMUMessage(Message):
 
 
 @dataclass
-class IMU9250Message(Message):
+class IMU9250Message(IMUMessage):
     imu_1 : IMU9250Data
     imu_2 : IMU9250Data
 
@@ -98,70 +98,73 @@ class IMU9250Message(Message):
         """
         Deserialize message from JSON received from redis.
         """
+        imu_d1 = data["imu_1"]
+        imu_d2 = data["imu_2"]
+
         imu_1 = IMU9250Data(
             acc=np.array([
-                float(data["imu_1_acc x"]),
-                float(data["imu_1_acc y"]),
-                float(data["imu_1_acc z"]),
+                float(imu_d1["AcX"]),
+                float(imu_d1["AcY"]),
+                float(imu_d1["AcZ"]),
             ]),
             gyr=np.array([
-                float(data["imu_1_gyr x"]),
-                float(data["imu_1_gyr y"]),
-                float(data["imu_1_gyr z"]),
+                float(imu_d1["GyX"]),
+                float(imu_d1["GyY"]),
+                float(imu_d1["GyZ"]),
             ]),
             mag=np.array([
-                float(data["imu_1_mag_x"]),
-                float(data["imu_1_mag_y"]),
-                float(data["imu_1_mag_z"])
+                float(imu_d1["MaX"]),
+                float(imu_d1["MaY"]),
+                float(imu_d1["MaZ"])
             ]),
         )
 
         imu_2 = IMU9250Data(
             acc=np.array([
-                float(data["imu_2_acc x"]),
-                float(data["imu_2_acc y"]),
-                float(data["imu_2_acc z"]),
+                float(imu_d2["AcX"]),
+                float(imu_d2["AcY"]),
+                float(imu_d2["AcZ"]),
             ]),
             gyr=np.array([
-                float(data["imu_2_gyr x"]),
-                float(data["imu_2_gyr y"]),
-                float(data["imu_2_gyr z"]),
+                float(imu_d2["GyX"]),
+                float(imu_d2["GyY"]),
+                float(imu_d2["GyZ"]),
             ]),
             mag=np.array([
-                float(data["imu_2_mag_x"]),
-                float(data["imu_2_mag_y"]),
-                float(data["imu_2_mag_z"])
+                float(imu_d2["MaX"]),
+                float(imu_d2["MaY"]),
+                float(imu_d2["MaZ"])
             ]),
         )
         return cls(imu_1=imu_1, imu_2=imu_2)
 
     def to_dict(self):
-        data = {}
+        data = {"imu_1": {}, "imu_2": {}}
 
-        data["imu_1_acc x"] = self.imu_1.acc[0]
-        data["imu_1_acc y"] = self.imu_1.acc[1]
-        data["imu_1_acc z"] = self.imu_1.acc[2]
+        data["imu_1"]["AcX"] = self.imu_1.acc[0]
+        data["imu_1"]["AcY"] = self.imu_1.acc[1]
+        data["imu_1"]["AcZ"] = self.imu_1.acc[2]
 
-        data["imu_2_acc x"] = self.imu_2.acc[0]
-        data["imu_2_acc y"] = self.imu_2.acc[1]
-        data["imu_2_acc z"] = self.imu_2.acc[2]
+        data["imu_1"]["GyX"] = self.imu_1.gyr[0]
+        data["imu_1"]["GyY"] = self.imu_1.gyr[1]
+        data["imu_1"]["GyZ"] = self.imu_1.gyr[2]
 
-        data["imu_1_gyr x"] = self.imu_1.gyr[0]
-        data["imu_1_gyr y"] = self.imu_1.gyr[1]
-        data["imu_1_gyr z"] = self.imu_1.gyr[2]
+        data["imu_1"]["MaX"] = self.imu_1.mag[0]
+        data["imu_1"]["MaY"] = self.imu_1.mag[1]
+        data["imu_1"]["MaZ"] = self.imu_1.mag[2]
 
-        data["imu_2_gyr x"] = self.imu_2.gyr[0]
-        data["imu_2_gyr y"] = self.imu_2.gyr[1]
-        data["imu_2_gyr z"] = self.imu_2.gyr[2]
+        data["imu_2"]["AcX"] = self.imu_2.acc[0]
+        data["imu_2"]["AcY"] = self.imu_2.acc[1]
+        data["imu_2"]["AcZ"] = self.imu_2.acc[2]
 
-        data["imu_1_mag x"] = self.imu_1.mag[0]
-        data["imu_1_mag x"] = self.imu_1.mag[1]
-        data["imu_1_mag x"] = self.imu_1.mag[2]
+        data["imu_2"]["GyX"] = self.imu_2.gyr[0]
+        data["imu_2"]["GyY"] = self.imu_2.gyr[1]
+        data["imu_2"]["GyZ"] = self.imu_2.gyr[2]
 
-        data["imu_2_mag x"] = self.imu_2.mag[0]
-        data["imu_2_mag x"] = self.imu_2.mag[1]
-        data["imu_2_mag x"] = self.imu_2.mag[2]
-        
+        data["imu_2"]["MaX"] = self.imu_2.mag[0]
+        data["imu_2"]["MaY"] = self.imu_2.mag[1]
+        data["imu_2"]["MaZ"] = self.imu_2.mag[2]
+    
         return data
 
 

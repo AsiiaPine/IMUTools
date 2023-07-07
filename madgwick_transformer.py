@@ -3,7 +3,7 @@ import datetime
 from Madgwick.MadgwickFilter import MadgwickAHRS
 from RedisPostman.models import IMUMessage, LogMessage, IMU9250Message
 import json
-from config import madgwick_message_channel,  imu_1_name, imu_2_name, imu_calibrated_message_channel, omega_e_imu_1, omega_e_imu_2, log_message_channel
+from config import madgwick_message_channel,  imu_1_name, imu_2_name, imu_calibrated_message_channel, omega_e_imu_1, omega_e_imu_2, log_message_channel, imu_raw_message_channel
 from RedisPostman.RedisWorker import AsyncRedisWorker
 
 
@@ -43,4 +43,4 @@ if __name__ == "__main__":
 
     madgwick_data_channel = madgwick_message_channel
 
-    asyncio.run(transform_imu_data_to_quaternions(in_channel_name=imu_calibrated_message_channel, out_channel_name=madgwick_data_channel))
+    asyncio.run(transform_imu_data_to_quaternions(in_channel_name=imu_raw_message_channel, out_channel_name=madgwick_data_channel))

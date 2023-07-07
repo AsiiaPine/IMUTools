@@ -19,7 +19,7 @@ async def visualize_imu(madgwick_plotter: MadgwickRedisPlotter, reader: Callable
         if message is not None:
             try:
                 result: dict[str, np.ndarray] = reader(message)
-                madgwick_plotter.update_plot_from_redis(acc=result["acc"], gyr=result["gyr"], quaternion=result["quaternion"])
+                madgwick_plotter.update_plot_from_redis(acc=result["acc"], gyr=result["gyr"], mag=result["mag"], quaternion=result["quaternion"])
             except Exception as e:
                 error_message = LogMessage(date=datetime.datetime.now(), process_name="visualize", status=LogMessage.exception_to_dict(e))
                 await worker.broker.publish(log_message_channel, json.dumps(error_message.to_dict()))
@@ -68,6 +68,7 @@ if __name__ == '__main__':
     madgwick_state = MadgwickRedisPlotter(
         to_draw_imu_data=bool(option['to_draw_imu_data']),
         to_draw_3d=bool(option["to_draw_3d"]),
+        to_draw_magnetic=True,
         window_size=20,
         imu_n=option["imu_name"]
     )

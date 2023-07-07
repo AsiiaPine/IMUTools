@@ -1,19 +1,19 @@
 from typing import Callable
 import numpy as np
-from RedisPostman.models import IMUMessage, MadgwickMessage, Message
+from RedisPostman.models import IMUMessage, MadgwickMessage, Message, IMU9250Message
 from config import imu_calibrated_message_channel, imu_raw_message_channel, madgwick_message_channel, imu_1_name, imu_2_name
 
-def read_imu_1_data(message: IMUMessage) -> dict[str, np.ndarray]:
-    return {"acc": message.imu_1.acc, "gyr": message.imu_1.gyr, "quaternion": np.zeros(4)}
+def read_imu_1_data(message: IMU9250Message) -> dict[str, np.ndarray]:
+    return {"acc": message.imu_1.acc, "gyr": message.imu_1.gyr, "mag": message.imu_1.mag, "quaternion": np.zeros(4)}
 
-def read_imu_2_data(message: IMUMessage) -> dict[str, np.ndarray]:
-    return {"acc": message.imu_2.acc, "gyr": message.imu_2.gyr, "quaternion": np.zeros(4)}
+def read_imu_2_data(message: IMU9250Message) -> dict[str, np.ndarray]:
+    return {"acc": message.imu_2.acc, "gyr": message.imu_2.gyr, "mag": message.imu_2.mag,"quaternion": np.zeros(4)}
 
 def read_quaternion_1_data(message: MadgwickMessage) -> dict[str, np.ndarray]:
-    return {"acc": np.zeros(3), "gyr": np.zeros(3), "quaternion": message.imu_1.value}
+    return {"acc": np.zeros(3), "gyr": np.zeros(3), "mag": np.zeros(3),"quaternion": message.imu_1.value}
 
 def read_quaternion_2_data(message: MadgwickMessage) -> dict[str, np.ndarray]:
-    return {"acc": np.zeros(3), "gyr": np.zeros(3), "quaternion": message.imu_2.value}
+    return {"acc": np.zeros(3), "gyr": np.zeros(3), "mag": np.zeros(3), "quaternion": message.imu_2.value}
 
 options: dict[str, dict[str, bool| Callable | str | type[Message]]] = {
     "plot imu 1 raw data":
@@ -22,7 +22,7 @@ options: dict[str, dict[str, bool| Callable | str | type[Message]]] = {
             "to_draw_3d": False,
             "channel": imu_raw_message_channel,
             "reader" : read_imu_1_data,
-            "dataClass": IMUMessage,
+            "dataClass": IMU9250Message,
             "imu_name": imu_1_name
         },
     "plot imu 2 raw data" : 
@@ -31,7 +31,7 @@ options: dict[str, dict[str, bool| Callable | str | type[Message]]] = {
             "to_draw_3d": False,
             "channel": imu_raw_message_channel,
             "reader" : read_imu_2_data,
-            "dataClass": IMUMessage,
+            "dataClass": IMU9250Message,
             "imu_name": imu_2_name
 
 
@@ -43,7 +43,7 @@ options: dict[str, dict[str, bool| Callable | str | type[Message]]] = {
             "to_draw_3d": False,
             "channel": imu_calibrated_message_channel,
             "reader" : read_imu_1_data,
-            "dataClass": IMUMessage,
+            "dataClass": IMU9250Message,
             "imu_name": imu_1_name
 
         },
@@ -54,7 +54,7 @@ options: dict[str, dict[str, bool| Callable | str | type[Message]]] = {
             "to_draw_3d": False,
             "channel": imu_calibrated_message_channel,
             "reader" : read_imu_2_data,
-            "dataClass": IMUMessage,
+            "dataClass": IMU9250Message,
             "imu_name": imu_2_name
 
         },

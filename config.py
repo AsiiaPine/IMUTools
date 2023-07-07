@@ -18,35 +18,42 @@ headers = [
     "imu_2_acc x",
 ]
 
+esp_headers=[
+    "AcX", "AcY", "AcZ", "Tmp", "GyX", "GyY", "GyZ", "MaX", "MaY", "MaZ"
+]
+
 mpu9250_headers=[
+    #TODO: ТУТ ХУЙНЯ КАКАЯ_ТО
 
-    "imu_1_mag_z",
-    "imu_1_mag_y",
-    "imu_1_mag_x",
-
-    "imu_1_gyr z",
-    "imu_1_gyr y",
-    "imu_1_gyr x",
-
-    "imu_1_tem x",
-
-    "imu_1_acc z",
-    "imu_1_acc y",
     "imu_1_acc x",
+    "imu_1_acc y",
+    "imu_1_acc z",
 
-    "imu_2_mag_z",
-    "imu_2_mag_y",
-    "imu_2_mag_x",
+    # "imu_1_tem",
+    "imu_1_gyr x",
+    "imu_1_gyr y",
+    "imu_1_gyr z",
+
+    "imu_1_mag x",
+    "imu_1_mag y",
+    "imu_1_mag z",
+
+    "imu_2_mag z",
+    "imu_2_mag y",
+    "imu_2_mag x",
 
     "imu_2_gyr z",
     "imu_2_gyr y",
     "imu_2_gyr x",
 
-    "imu_2_tem x",
-    
     "imu_2_acc z",
     "imu_2_acc y",
     "imu_2_acc x",
+
+    # "imu_2_tem",
+
+
+    
 ]
 
 # redis data channels names
@@ -78,5 +85,5 @@ import numpy as np
 # omega_e_imu_1 = [0.001, 0.006, 0.015]
 # omega_e_imu_2 = [0.001, 0.01, 0.0075]
 
-omega_e_imu_1 = [0.1, 0.1, 0.1]
+omega_e_imu_1 = [1, 1, 1]
 omega_e_imu_2 = [0.01, 0.01, 0.01]

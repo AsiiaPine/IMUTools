@@ -4,7 +4,7 @@ import serial  # type:ignore
 import json
 from redis import asyncio as aioredis
 from RedisPostman.MessageBroker import ARedisMessageBroker
-from config import mpu9250_headers, imu_raw_message_channel, log_message_channel
+from config import mpu9250_headers, imu_raw_message_channel, log_message_channel, esp_headers
 from RedisPostman.models import LogMessage
 
 
@@ -31,12 +31,13 @@ async def read_serial_and_post_to_redis():
                 serialString = serialPort.readline()
 
                 # Get the contents of the serial data
-                data = list(serialString.decode('Ascii').split(" "))
-
+                # data = list(serialString.decode('Ascii').split(" "))
                 # Build a dict with received data.
-                result = {}
-                for val, header in zip(data, mpu9250_headers):
-                    result[header] = float(val)
+                result = json.loads(serialString.decode("Ascii"))
+
+                # result = {}
+                # for val, header in zip(data, mpu9250_headers):
+                #     result[header] = float(val)
 
                 await broker.publish(imu_raw_message_channel, json.dumps(result))
 
